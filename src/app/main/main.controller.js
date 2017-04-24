@@ -10,7 +10,7 @@
   /** @ngInject */
   function mainController($log, mainSocket) {
     var vm = this,
-        tournamentID = 142857;
+        tournamentID = parseInt(prompt("Tournament ID:"));
 
     // Set tournament as waiting
     vm.tournament = { status: 'waiting' };
