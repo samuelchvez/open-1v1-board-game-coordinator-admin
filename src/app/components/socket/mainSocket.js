@@ -10,7 +10,7 @@
   function mainSocketFactory(socketFactory){
 
     var mainIOSocket = io.connect(
-      'http://localhost:3000', {
+      prompt("Insert the fully cualified host and port of the coordinator:"), {
         'sync disconnect on unload': true
       }
     );
