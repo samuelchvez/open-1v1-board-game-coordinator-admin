@@ -2,12 +2,12 @@
   <div class="row">
     <div class="col">
       <h1>
-        Othello League
+        {{ ctrl.gameType }} League
         <span class="tag tag-success tag-small" ng-if="ctrl.tournament.status === 'ongoing'">Already started</span>
 
         <span class="tag tag-danger tag-small" ng-if="ctrl.tournament.status === 'finished'">Finished</span>
       </h1>
-      <p>Welcome to the <strong>Othello League's Dashboard</strong>. Here you can watch and control what is going on with the league. For example, the following table shows the AI players that are currently online.</p>
+      <p>Welcome to the <strong>{{ ctrl.gameType }} League's Dashboard</strong>. Here you can watch and control what is going on with the league. For example, the following table shows the AI players that are currently online.</p>
 
       <p class="placeholder" ng-show="!ctrl.players || ctrl.players.length === 0">Waiting players to connect...</p>
 

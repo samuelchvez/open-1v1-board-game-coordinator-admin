@@ -1,82 +1,95 @@
-(function(angular) {
-  'use strict';
+(function (angular) {
+  "use strict";
 
-  angular
-    .module('othelloLeague')
-    .controller('MainController', mainController);
+  angular.module("othelloLeague").controller("MainController", mainController);
 
-  mainController.$inject = ['$log', 'mainSocket'];
+  mainController.$inject = ["$log", "mainSocket"];
 
   /** @ngInject */
   function mainController($log, mainSocket) {
     var vm = this,
-        tournamentID = parseInt(prompt("Tournament ID:"));
+      tournamentID = parseInt(prompt("Tournament ID:"));
 
     // Set tournament as waiting
-    vm.tournament = { status: 'waiting' };
+    vm.tournament = { status: "waiting" };
 
     // When the user is connected
-    mainSocket.on('connect', function(){
-
-      mainSocket.emit('signin', {
-        name:'TournamentAdministrator',
+    mainSocket.on("connect", function () {
+      mainSocket.emit("signin", {
+        name: "TournamentAdministrator",
         tournament_id: tournamentID,
-        user_role: 'admin'
+        user_role: "admin",
       });
-
     });
 
+    // When the user is signed in
+    mainSocket.on("ok_signin", adminSignedIn);
+
     // When the player list changed
-    mainSocket.on('player_list_changed', playerListChanged);
+    mainSocket.on("player_list_changed", playerListChanged);
 
     // When the game list changed
-    mainSocket.on('game_list_changed', gameListChanged);
+    mainSocket.on("game_list_changed", gameListChanged);
 
     // When the tournament has ended
-    mainSocket.on('tournament_status_changed', tournamentStatusChanged);
+    mainSocket.on("tournament_status_changed", tournamentStatusChanged);
 
-    function playerListChanged(data){
+    function adminSignedIn(data) {
+      vm.gameType = data.game;
+      switch (data.game) {
+        case "othello":
+          vm.gameType = "Othello";
+          break;
+        case "connect4":
+          vm.gameType = "Connect 4";
+          break;
+        case "dotsAndBoxes":
+          vm.gameType = "Dots and Boxes";
+          break;
+      }
+    }
+
+    function playerListChanged(data) {
       vm.players = data;
       vm.waitingPlayer = false;
     }
 
-    function gameListChanged(data){
+    function gameListChanged(data) {
       vm.games = data;
     }
 
     // TODO: implement this
-    function tournamentStatusChanged(data){
+    function tournamentStatusChanged(data) {
       vm.tournament.status = data.status;
     }
 
-    vm.getStatus = function(player){
-      if(player.available){
-        if(vm.waitingPlayer){
-          if(vm.waitingPlayer.name === player.name)
-            return 'waiting';
+    vm.getStatus = function (player) {
+      if (player.available) {
+        if (vm.waitingPlayer) {
+          if (vm.waitingPlayer.name === player.name) return "waiting";
 
-          return 'getme';
+          return "getme";
         }
 
-        return 'available';
+        return "available";
       }
-      return 'playing';
-    }
+      return "playing";
+    };
 
-    vm.startTournament = function(){
-      mainSocket.emit('start_tournament', tournamentID);
-    }
+    vm.startTournament = function () {
+      mainSocket.emit("start_tournament", tournamentID);
+    };
 
-    vm.resetTournament = function(){
-      mainSocket.emit('reset_tournament', tournamentID);
-    }
+    vm.resetTournament = function () {
+      mainSocket.emit("reset_tournament", tournamentID);
+    };
 
-    vm.unstuckGame = function(gameID, turnID){
-      mainSocket.emit('unstuck_game', {
+    vm.unstuckGame = function (gameID, turnID) {
+      mainSocket.emit("unstuck_game", {
         tournament_id: tournamentID,
         game_id: gameID,
-        winner_turn_id: turnID
+        winner_turn_id: turnID,
       });
-    }
+    };
   }
 })(angular);
